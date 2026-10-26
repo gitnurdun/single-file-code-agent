@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# sfc - start the single-file code agent in interactive mode.
+set -euo pipefail
+
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd "$(dirname "$SELF")" && pwd)"
+AGENT="$SCRIPT_DIR/single_file_code_agent.py"
+ENV_NAME="${SFC_ENV:-pytorch_env}"
+
+if command -v conda >/dev/null 2>&1; then
+  # shellcheck disable=SC1090
+  source "$(conda info --base)/etc/profile.d/conda.sh"
+  conda activate "$ENV_NAME" 2>/dev/null || true
+fi
+
+PY="${SFC_PYTHON:-python}"
+if ! command -v "$PY" >/dev/null 2>&1; then
+  PY="python3"
+fi
+
+exec "$PY" "$AGENT" --interactive "$@"
